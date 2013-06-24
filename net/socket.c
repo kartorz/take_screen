@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 
 #include "log.h"
+#include "type.h"
 
 static int s_id = -1;
 struct sockaddr_in addr;
@@ -43,9 +44,9 @@ void close_socket()
         close(s_id);
 }
 
-extern udp_send(const int s_id, const struct sockaddr_in* addr, const char* pBuff, const uint32_t nLen);
+extern udp_send(const int s_id, const struct sockaddr_in* addr, const BYTE* pBuff, const uint32_t nLen);
 
-void socket_send(char* pBuff, uint32_t nLen)
+void socket_send(BYTE* pBuff, uint32_t nLen)
 {
     udp_send(s_id, &addr, pBuff, nLen);
 }

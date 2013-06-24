@@ -10,12 +10,16 @@
  */
 
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include "common.h"
-#include "output.h"
+#include "outfmt.h"
 #include "jpeglib.h"
 
-char jpeg_fname[] = "screen.jpg";
+char jpeg_fname[] = "/tmp/screen.jpg";
 FILE* pf_jpeg;
 
 static int init_jpeg(int argc, char *argv[])
@@ -26,6 +30,21 @@ static int init_jpeg(int argc, char *argv[])
     return 0;
 }
 
+static void net_send_jpeg()
+{
+    struct stat attr;
+    BYTE *buf;
+
+    if(stat(jpeg_fname, &attr) == -1)
+        fatalerr("can't file jpeg's attribute\n");
+
+    buf = malloc(attr.st_size);
+    fread(buf, attr.st_size, 1, pf_jpeg);
+
+    socket_send(buf, attr.st_size);
+
+    free(buf);
+}
 
 static int write_jpeg(scimg* img)
 {
@@ -61,19 +80,19 @@ static int write_jpeg(scimg* img)
     stride = w * 3;
 
     LOG(LOG_DEBUG, "start to writing jpeg file, (%d,%d)\n", w, h);
-    // jpeg_write_scanlines(&cinfo, buff, img->h);
     
-    #if 1
      while (cinfo.next_scanline < cinfo.image_height) {
          buff[0] = & imgbuf[cinfo.next_scanline * stride];
          (void) jpeg_write_scanlines(&cinfo, buff, 1);
      }
-     #endif
+
    
     jpeg_finish_compress(&cinfo);
+    
+    net_send_jpeg();
 
     fclose(pf_jpeg);
-
+    
     jpeg_destroy_compress(&cinfo);
 }
 

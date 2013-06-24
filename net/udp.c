@@ -20,12 +20,12 @@ typedef struct _HeadExt
 { 
     //char   			flag[5]; // specify our data pocket.
     uint32_t   		m_nSeqNumber; // sequence of the frame.
-    uint8_t       	m_nTotalFragment;// division of the frame.
-    uint16_t 		m_nTotalSize;  // size of the fram
+    uint32_t       	m_nTotalFragment;// division of the frame.
+    uint32_t 		m_nTotalSize;  // size of the fram
     // informat for every division.
-    uint8_t 		m_nFragmentIndex; // index of a division of the frame.
-    uint16_t 		m_usPayloadSize; // payload of a division.
-    uint16_t 		m_usFragOffset;// offset to data of the whole frame.
+    uint32_t 		m_nFragmentIndex; // index of a division of the frame.
+    uint32_t 		m_usPayloadSize; // payload of a division.
+    uint32_t 		m_usFragOffset;// offset to data of the whole frame.
     uint8_t 		m_bLastFragment;// "1" indicates last division.
  
  }__attribute__((packed)) HeadExt; 
@@ -37,7 +37,7 @@ int count = 0;
 //LONGLONG index = rand();
 
 
-void udp_send(const int s_id, const struct sockaddr_in* addr, const char* pBuff, const uint32_t nLen) 
+void udp_send(const int s_id, const struct sockaddr_in* addr, const BYTE* pBuff, const uint32_t nLen) 
 { 
     HeadExt head; 
       
@@ -51,7 +51,7 @@ void udp_send(const int s_id, const struct sockaddr_in* addr, const char* pBuff,
 
     LOG(LOG_INFO, "udp_send m_nTotalFragment:%d,  m_nTotalSize:%d\n",head.m_nTotalFragment, head.m_nTotalSize);
 
-    char tem[RTP_SPLIT_PACKSIZE+sizeof(HeadExt)]; 
+    BYTE tem[RTP_SPLIT_PACKSIZE+sizeof(HeadExt)]; 
  
     if(head.m_nTotalFragment == 1) 
     { 
@@ -78,12 +78,8 @@ void udp_send(const int s_id, const struct sockaddr_in* addr, const char* pBuff,
         memcpy(tem+sizeof(HeadExt),pBuff+i*RTP_SPLIT_PACKSIZE,RTP_SPLIT_PACKSIZE); 
  		sendto(s_id,tem,sizeof(tem),0,(struct sockaddr *)addr,sizeof(addr));
 
-        LOG(LOG_DEBUG,"udp_send：m_nSeqNumber:(%d), \
-						m_nTotalFragment %d, \
-						m_nFragmentIndex %d,     \
-						m_usFragOffset %d,\
-						m_nTotalSize %d,\
-						m_nDataLen %d\r\n",
+        LOG(LOG_DEBUG,"udp_send：m_nSeqNumber:(%d),m_nTotalFragment %d, \
+m_nFragmentIndex %d,m_usFragOffset %d,m_nTotalSize %d,m_nDataLen %d\n",
             			head.m_nSeqNumber,
             			head.m_nTotalFragment,
 						head.m_nFragmentIndex,
@@ -102,12 +98,8 @@ void udp_send(const int s_id, const struct sockaddr_in* addr, const char* pBuff,
 
  	sendto(s_id,tem,len+sizeof(HeadExt),0,(struct sockaddr *)addr,sizeof(addr));
 
-            LOG(LOG_DEBUG,"udp_send：m_nSeqNumber:(%d), \
-						m_nTotalFragment %d, \
-						m_nFragmentIndex %d,     \
-						m_usFragOffset %d,\
-						m_nTotalSize %d,\
-						m_nDataLen %d\r\n",
+    LOG(LOG_DEBUG,"udp_send：m_nSeqNumber:(%d),m_nTotalFragment %d,m_nFragmentIndex %d,     \
+m_usFragOffset %d, m_nTotalSize %d,m_nDataLen %d \n",
             			head.m_nSeqNumber,
             			head.m_nTotalFragment,
 						head.m_nFragmentIndex,

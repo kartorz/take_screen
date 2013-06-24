@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 #include "grabber.h"
-#include "output.h"
+#include "outfmt.h"
 #include "log.h"
 
 #pragma pack(push, 2)

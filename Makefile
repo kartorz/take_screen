@@ -5,7 +5,9 @@ OBJS += log.o \
 	take_screen.o  \
 	grabbers/x11_grabber.o \
 	shot/o_bmp.o \
-	shot/o_jpeg.o 
+	shot/o_jpeg.o \
+	net/socket.o \
+	net/udp.o 
 
 #subdirs = kernel
 include common.mk
@@ -20,8 +22,14 @@ take-screen: $(OBJS)
 subdir: force
 	$(foreach d, $(subdirs), $(MAKE) -C $(d))
 
-.PHONY : clean
+.PHONY : clean distclean 
 
 clean:
-	@find . -name "*.[oadP]" | xargs -I{} rm {}
+	-rm *.[od]
+	-rm shot/*.[od]
+	-rm net/*.[od]
+	-rm grabbers/*.[od]
+
+distclean:
+	find .  -name "*.[oadP]" | xargs -I{} rm {}
 

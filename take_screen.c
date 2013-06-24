@@ -11,8 +11,6 @@
 
 #include "grabber.h"
 #include "outfmt.h"
-
-//#include "x11_grabber.h"
 #include <stdlib.h>
 
 sc_grabber_t* screen_grabber;
@@ -21,7 +19,7 @@ ofmt* output_frame;
 int main(int argc, char* argv[])
 {
     scimg img;
-
+    int delay = 5;
     screen_grabber = &x11_grabber;
     if(1)
     {
@@ -35,6 +33,10 @@ int main(int argc, char* argv[])
 
     screen_grabber->init_grabber(argc, argv);
     output_frame->init(argc, argv);
+
+    create_socket("127.0.0.1", 9900);
+    
+    sleep(delay);
 
     screen_grabber->grab_screen(&img);
 

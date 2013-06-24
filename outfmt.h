@@ -9,8 +9,8 @@
  * 
  */
 
-#ifndef  _OUTPUT_H_
-#define  _OUTPUT_H__
+#ifndef  _OUTFMT_H_
+#define  _OUTFMT_H__
 
 #include "scimg.h"
 #include "grabber.h"
