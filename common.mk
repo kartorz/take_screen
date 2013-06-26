@@ -11,6 +11,8 @@ INCLUDE = -I$(TOPDIR) \
 
 CFLAGS += $(INCLUDE)  -Wall $(CFG_DEBUG)
 
+DEFINES = -DHAS_PROJECTION
+
 %o : %S
 	$(CC) $(DEFINES) $(CFLAGS) -c $< -o $@
 

@@ -23,7 +23,6 @@ Display *dpy = NULL;
 int      screen = 0;
 int img_format = ZPixmap;
 int user_colormap = 0;
-//int nobdrs = 1;
 int is_index_color = 0;
 
 static const char display_name[] = ":0.0";
@@ -40,7 +39,7 @@ static void init_x11()
 }
 
 
-static int init_grabber(int argc, char* argv[])
+static int init_grabber()
 {
     init_x11();
     return 0;
@@ -160,8 +159,7 @@ static int find_colors(Visual *vis, Colormap cmap, XColor **colors)
     return(ncolors);
 }
 
-static int 
-get_xcolors(XWindowAttributes *win_info,XColor **colors)
+static int get_xcolors(XWindowAttributes *win_info,XColor **colors)
 {
     int i, ncolors;
     Colormap cmap = win_info->colormap;
@@ -176,8 +174,7 @@ get_xcolors(XWindowAttributes *win_info,XColor **colors)
     return ncolors ;
 }
 
-static void 
-convert_to_colorbuf(scimg* scimg, XImage *img, XColor *colors, int ncolors)
+static void convert_to_colorbuf(scimg* scimg, XImage *img, XColor *colors, int ncolors)
 {
     int h, w;
     unsigned  cp_index;
@@ -251,25 +248,17 @@ convert_to_colorbuf(scimg* scimg, XImage *img, XColor *colors, int ncolors)
     }
 }
 
-static int 
-grab_screen_image(scimg *scimg)
+static int grab_screen_image(scimg *scimg)
 {
-//    unsigned long swaptest = 1;
    XColor *colors;
     unsigned buffer_size;
-//    int win_name_size;
     int header_size;
     int ncolors, i;
-//    char *win_name;
     XWindowAttributes win_info;
     XImage *image;
     unsigned x,y,width,height;
     unsigned dwidth, dheight;
     int bw;
-//    XWDFileHeader header;
-//    XWDColor xwdcolor;
-//    Visual		vis_h,*vis ;
-//    Window dummywin;
 
     if (!XGetWindowAttributes(dpy, RootWindow(dpy, screen), &win_info)) 
         fatalerr("Can't get target window attributes.");
@@ -297,14 +286,17 @@ grab_screen_image(scimg *scimg)
     scimg->h = height;
     scimg->size = buffer_size;
     scimg->depth = image->depth;
-    scimg->data = malloc(buffer_size);
-    if(scimg->data == NULL)
-        fatalerr("Can't get target window attributes.");
+    LOG(LOG_DEBUG, "grab_screen_image (%d, %d, %d, %d)\n", width, height, buffer_size, image->depth);
+
+    if(scimg->data == NULL)  //When recording screen or projection, will grab screen cyclically.
+    {
+        if(!(scimg->data = malloc(buffer_size)))
+            fatalerr("Can't get target window attributes.");
+    }
 
     convert_to_colorbuf(scimg, image, colors, ncolors);
     //printf("******* screen image raw data ********\n");
     //fwrite(scimg->data, image->bytes_per_line, image->height, stdout);
-
     XDestroyImage(image);
     return 0;
 }

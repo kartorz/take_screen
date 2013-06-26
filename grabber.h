@@ -16,7 +16,7 @@
 #include "scimg.h"
 
 //return: On success, return 0, otherwise non-zero.
-typedef int (*fn_init)(int argc, char* argv[]);
+typedef int (*fn_init)();
 typedef void (*fn_uninit)(void);
 
 //return: On success, return 0, otherwise non-zero.

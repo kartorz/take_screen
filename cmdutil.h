@@ -9,18 +9,26 @@
  * 
  */
 
-#ifndef _LOG_H_
-#define _LOG_H_
+#ifndef _CMDUTIL_H_
+#define _CMDUTIL_H_
 
-typedef enum{
-    LOG_DEBUG,
-    LOG_ERROR,
-    LOG_INFO,
-    LOG_NONE,
-}log_level;
+#define FUN_SHOT       1
+#define FUN_PROJECTION 2
+#define FUN_RECORDING  3
 
-extern void LOG(int level,char *msg, ...);
-extern void fatalerr(char *msg, ...);
+extern int opt_frame_rate;
 
+extern char opt_ipaddr[7];
+
+extern unsigned opt_ipport;
+
+//jpeg, bmp, mp4.
+extern char opt_omt[5];
+
+extern int opt_function;
+
+extern void parse_opt(int argc, char* argv[]);
+
+extern void usage();
 
 #endif

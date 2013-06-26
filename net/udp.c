@@ -37,7 +37,10 @@ int count = 0;
 //LONGLONG index = rand();
 
 
-void udp_send(const int s_id, const struct sockaddr_in* addr, const BYTE* pBuff, const uint32_t nLen) 
+static int s_id = -1;
+struct sockaddr_in addr;
+
+void udp_send(const BYTE* pBuff, const uint32_t nLen) 
 { 
     HeadExt head; 
       
@@ -59,7 +62,7 @@ void udp_send(const int s_id, const struct sockaddr_in* addr, const BYTE* pBuff,
         memcpy(tem+sizeof(HeadExt),pBuff,nLen); 
         head.m_usPayloadSize = nLen; 
 
- 	   sendto(s_id,tem,nLen+sizeof(HeadExt),0,(struct sockaddr *)addr,sizeof(addr));
+ 	   sendto(s_id,tem,nLen+sizeof(HeadExt),0,(struct sockaddr *)&addr, sizeof(addr));
 
        LOG(LOG_DEBUG,"udp_setd：m_nSeqNumber%d ,m_nTotalFragment %d,m_nFragmentIndex %d,m_usFragOffset %d,m_nTotalSize %d,m_nDataLen %d\r\n",\
            head.m_nSeqNumber,head.m_nTotalFragment,head.m_nFragmentIndex,head.m_usFragOffset,head.m_nTotalSize,head.m_usPayloadSize); 
@@ -76,7 +79,7 @@ void udp_send(const int s_id, const struct sockaddr_in* addr, const BYTE* pBuff,
         head.m_usPayloadSize = RTP_SPLIT_PACKSIZE; 
         memcpy(tem,&head,sizeof(HeadExt)); 
         memcpy(tem+sizeof(HeadExt),pBuff+i*RTP_SPLIT_PACKSIZE,RTP_SPLIT_PACKSIZE); 
- 		sendto(s_id,tem,sizeof(tem),0,(struct sockaddr *)addr,sizeof(addr));
+ 		sendto(s_id,tem,sizeof(tem),0,(struct sockaddr *)&addr,sizeof(addr));
 
         LOG(LOG_DEBUG,"udp_send：m_nSeqNumber:(%d),m_nTotalFragment %d, \
 m_nFragmentIndex %d,m_usFragOffset %d,m_nTotalSize %d,m_nDataLen %d\n",
@@ -96,7 +99,7 @@ m_nFragmentIndex %d,m_usFragOffset %d,m_nTotalSize %d,m_nDataLen %d\n",
     memcpy(tem,&head,sizeof(HeadExt)); 
     memcpy(tem+sizeof(HeadExt),pBuff+i*RTP_SPLIT_PACKSIZE,len); 
 
- 	sendto(s_id,tem,len+sizeof(HeadExt),0,(struct sockaddr *)addr,sizeof(addr));
+ 	sendto(s_id,tem,len+sizeof(HeadExt),0,(struct sockaddr *)&addr,sizeof(addr));
 
     LOG(LOG_DEBUG,"udp_send：m_nSeqNumber:(%d),m_nTotalFragment %d,m_nFragmentIndex %d,     \
 m_usFragOffset %d, m_nTotalSize %d,m_nDataLen %d \n",
@@ -106,4 +109,26 @@ m_usFragOffset %d, m_nTotalSize %d,m_nDataLen %d \n",
 						head.m_usFragOffset,
 						head.m_nTotalSize,
 						head.m_usPayloadSize); 
+}
+
+int udp_create_socket(char* ip, unsigned port)
+{
+	bzero(&addr,sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = inet_addr(ip);
+	addr.sin_port = htons(port);
+	
+	if ((s_id = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+	{
+        LOG(LOG_DEBUG,"can't open socket\n");
+		return -1;
+	}
+    LOG(LOG_DEBUG, "create socket succesfully \n");
+    return s_id;
+}
+
+void udp_close_socket()
+{
+    if(s_id != -1)
+        close(s_id);
 }

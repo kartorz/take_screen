@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "log.h"
 
@@ -15,7 +16,7 @@ const char program_name[] = "TakeScreen";
 const char log_path[] = "/tmp/takesceen.log";
 
 static int output_tofile = 0;
-static int output_level = LOG_DEBUG;
+static int output_level = LOG_DEBUG;//LOG_NONE;
 static int fd_log = -1;
 static FILE * pflog = NULL;
 

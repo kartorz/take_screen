@@ -11,40 +11,25 @@
 
 #include <stdio.h>
 #include <sys/types.h>
-#include <sys/stat.h>
+
 #include <unistd.h>
 #include <stdlib.h>
 
 #include "common.h"
 #include "outfmt.h"
 #include "jpeglib.h"
+#include "net/udp.h"
 
-char jpeg_fname[] = "/tmp/screen.jpg";
+
 FILE* pf_jpeg;
+char* jpg_path;
 
-static int init_jpeg(int argc, char *argv[])
+static int init_jpeg(char *path)
 {
-    pf_jpeg = fopen(jpeg_fname, "wb");
-    if(pf_jpeg == NULL)
-        return -1;
+    jpg_path = path;
     return 0;
 }
 
-static void net_send_jpeg()
-{
-    struct stat attr;
-    BYTE *buf;
-
-    if(stat(jpeg_fname, &attr) == -1)
-        fatalerr("can't file jpeg's attribute\n");
-
-    buf = malloc(attr.st_size);
-    fread(buf, attr.st_size, 1, pf_jpeg);
-
-    socket_send(buf, attr.st_size);
-
-    free(buf);
-}
 
 static int write_jpeg(scimg* img)
 {
@@ -55,6 +40,9 @@ static int write_jpeg(scimg* img)
     JSAMPLE * imgbuf = (JSAMPLE *)(img->data);
    
     if(img->data == NULL)
+        return -1;
+
+    if( (pf_jpeg = fopen(jpg_path, "wb")) == NULL)
         return -1;
 
     w = img->w;
@@ -73,7 +61,7 @@ static int write_jpeg(scimg* img)
 
 	jpeg_set_defaults(&cinfo);
 
-    //jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+    jpeg_set_quality(&cinfo, 80, TRUE /* limit to baseline-JPEG values */);
 
     jpeg_start_compress(&cinfo, TRUE);
     
@@ -88,9 +76,7 @@ static int write_jpeg(scimg* img)
 
    
     jpeg_finish_compress(&cinfo);
-    
-    net_send_jpeg();
-
+   
     fclose(pf_jpeg);
     
     jpeg_destroy_compress(&cinfo);

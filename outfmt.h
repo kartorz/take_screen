@@ -13,15 +13,12 @@
 #define  _OUTFMT_H__
 
 #include "scimg.h"
-#include "grabber.h"
 
-typedef int (*fn_write)(scimg *);
-
- typedef struct {
-     fn_init init;
-     fn_uninit uninit;
-     fn_write write_frame;
- }ofmt;
+typedef struct {
+    int (*init)(char *);
+    void (*uninit)(void);
+    int (*write_frame)(scimg *);
+}ofmt;
 
 #define  REGISTER_OUTPUT_MD(module_name) \
     ofmt o_ ## module_name = { \

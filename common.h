@@ -4,5 +4,6 @@
 #include "type.h"
 #include "log.h"
 
+extern int projection_en;
 
 #endif

@@ -37,12 +37,11 @@ typedef struct {
 } BMPHEAD;
 #pragma pack(pop)
 
-static char f_name[255] = "screen.bmp";
 static FILE* pf_bmp = NULL;
 
-static int init_bmp(int argc, char *argv[])
+static int init_bmp(char *path)
 {
-    pf_bmp = fopen(f_name, "w");
+    pf_bmp = fopen(path, "w");
     if(pf_bmp == NULL)
         return -1;
     return 0;
